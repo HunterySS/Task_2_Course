@@ -1,0 +1,10 @@
+2026-04-26 15:06:01 [main] DEBUG com.ilya.textapp.service.TokenSwapperService - Swapping first and last token in each clause
+2026-04-26 15:06:01 [main] DEBUG com.ilya.textapp.service.TokenSwapperService - Swapped first word 'first' with last word 'last'
+2026-04-26 15:06:01 [main] INFO  com.ilya.textapp.service.TokenSwapperService - Token swapping completed
+2026-04-26 15:06:01 [main] DEBUG com.ilya.textapp.service.TokenSwapperService - Swapping first and last token in each clause
+2026-04-26 15:06:01 [main] ERROR com.ilya.textapp.service.TokenSwapperService - Document is null
+2026-04-26 15:06:01 [main] DEBUG com.ilya.textapp.service.TextAnalyzerService - Starting analysis: find max sentences with same words
+2026-04-26 15:06:01 [main] ERROR com.ilya.textapp.service.TextAnalyzerService - Document is null
+2026-04-26 15:06:01 [main] DEBUG com.ilya.textapp.service.TextAnalyzerService - Starting analysis: find max sentences with same words
+2026-04-26 15:06:01 [main] INFO  com.ilya.textapp.service.TextAnalyzerService - Total clauses found: 2
+2026-04-26 15:06:01 [main] INFO  com.ilya.textapp.service.TextAnalyzerService - Maximum number of sentences containing same word: 2
