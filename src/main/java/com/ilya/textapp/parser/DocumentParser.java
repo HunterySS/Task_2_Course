@@ -11,7 +11,7 @@ public class DocumentParser extends AbstractTextParser {
     public CompositeComponent parse(String text) throws TextProcessingException {
         LOGGER.debug("Parsing document");
 
-        if (text == null || text.trim().isEmpty()) {
+        if (text == null || text.strip().isBlank()) {
             LOGGER.error("Text is null or empty");
             throw new TextProcessingException("Text cannot be null or empty");
         }
@@ -21,7 +21,7 @@ public class DocumentParser extends AbstractTextParser {
         LOGGER.info("Found {} blocks (paragraphs)", blocks.length);
 
         for (String blockText : blocks) {
-            CompositeComponent block = parseNext(blockText.trim());
+            CompositeComponent block = parseNext(blockText.strip());
             if (block != null) {
                 root.add(block);
             }
