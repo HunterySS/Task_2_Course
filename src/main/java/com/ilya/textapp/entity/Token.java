@@ -37,7 +37,13 @@ public class Token implements CompositeComponent {
 
     @Override
     public int countLetters() {
-        return (int) value.chars().filter(Character::isLetter).count();
+        int count = 0;
+        for (int i = 0; i < value.length(); i++) {
+            if (Character.isLetter(value.charAt(i))) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Override
