@@ -24,7 +24,8 @@ public class Main {
 
         try {
             String filePath = "data/input.txt";
-            String text = FileReaderUtil.readFile(filePath);
+            FileReaderUtil fileReader = new FileReaderUtil();
+            String text = fileReader.readFile(filePath);
 
             TextParser parser = ParserChainFactory.createChain();
             CompositeComponent document = parser.parse(text);

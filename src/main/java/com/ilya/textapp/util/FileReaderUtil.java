@@ -1,6 +1,7 @@
 package com.ilya.textapp.util;
 
 import com.ilya.textapp.exception.TextProcessingException;
+import com.ilya.textapp.util.impl.FileReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,10 +10,11 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-public class FileReaderUtil {
+public class FileReaderUtil implements FileReader {
     private static final Logger LOGGER = LogManager.getLogger(FileReaderUtil.class);
 
-    public static String readFile(String filePath) throws TextProcessingException {
+    @Override
+    public String readFile(String filePath) throws TextProcessingException {
         LOGGER.debug("Reading file: {}", filePath);
 
         if (filePath == null || filePath.isBlank()) {
