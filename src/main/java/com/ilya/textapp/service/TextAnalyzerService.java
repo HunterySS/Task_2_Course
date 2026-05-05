@@ -1,9 +1,9 @@
 package com.ilya.textapp.service;
 
-import com.ilya.textapp.entity.Block;
-import com.ilya.textapp.entity.Clause;
-import com.ilya.textapp.entity.Token;
-import com.ilya.textapp.entity.impl.CompositeComponent;
+import com.ilya.textapp.entity.TextComposite;
+import com.ilya.textapp.entity.TextLeaf;
+import com.ilya.textapp.entity.impl.TextComponent;
+import com.ilya.textapp.entity.impl.TextComponentType;
 import com.ilya.textapp.exception.TextProcessingException;
 import com.ilya.textapp.service.impl.TextAnalyzer;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +15,7 @@ public class TextAnalyzerService implements TextAnalyzer {
     private static final Logger LOGGER = LogManager.getLogger(TextAnalyzerService.class);
 
     @Override
-    public int findMaxSentencesWithSameWords(CompositeComponent document) throws TextProcessingException {
+    public int findMaxSentencesWithSameWords(TextComponent document) throws TextProcessingException {
         LOGGER.debug("Starting analysis: find max sentences with same words");
 
         if (document == null) {
@@ -23,14 +23,13 @@ public class TextAnalyzerService implements TextAnalyzer {
             throw new TextProcessingException("Document cannot be null");
         }
 
-        List<Clause> allClauses = extractAllClauses(document);
-        LOGGER.info("Total clauses found: {}", allClauses.size());
+        List<TextComponent> allSentences = extractAllByType(document, TextComponentType.SENTENCE);
+        LOGGER.info("Total sentences found: {}", allSentences.size());
 
         Map<String, List<Integer>> wordToSentenceIndices = new HashMap<>();
 
-        for (int i = 0; i < allClauses.size(); i++) {
-            Clause clause = allClauses.get(i);
-            Set<String> uniqueWords = extractUniqueWords(clause);
+        for (int i = 0; i < allSentences.size(); i++) {
+            Set<String> uniqueWords = extractUniqueWords(allSentences.get(i));
 
             for (String word : uniqueWords) {
                 if (wordToSentenceIndices.containsKey(word)) {
@@ -54,34 +53,27 @@ public class TextAnalyzerService implements TextAnalyzer {
         return maxSentences;
     }
 
-    private List<Clause> extractAllClauses(CompositeComponent component) {
-        List<Clause> result = new ArrayList<>();
+    private List<TextComponent> extractAllByType(TextComponent component, TextComponentType targetType) {
+        List<TextComponent> result = new ArrayList<>();
 
-        if (component instanceof Clause) {
-            result.add((Clause) component);
-        } else if (component instanceof Block) {
-            List<CompositeComponent> children = component.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                result.addAll(extractAllClauses(children.get(i)));
-            }
-        } else if (component.getClass().getSimpleName().equals("DocumentRoot")) {
-            List<CompositeComponent> children = component.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                result.addAll(extractAllClauses(children.get(i)));
-            }
+        if (component.getType() == targetType) {
+            result.add(component);
+        }
+
+        for (TextComponent child : component.getChildren()) {
+            result.addAll(extractAllByType(child, targetType));
         }
 
         return result;
     }
 
-    private Set<String> extractUniqueWords(Clause clause) {
+    private Set<String> extractUniqueWords(TextComponent sentence) {
         Set<String> uniqueWords = new HashSet<>();
-        List<CompositeComponent> components = clause.getChildren();
 
-        for (int i = 0; i < components.size(); i++) {
-            if (components.get(i) instanceof Token) {
-                Token token = (Token) components.get(i);
-                String word = token.getValue().toLowerCase();
+        for (TextComponent child : sentence.getChildren()) {
+            if (child.getType() == TextComponentType.WORD) {
+                TextLeaf wordLeaf = (TextLeaf) child;
+                String word = wordLeaf.getValue().toLowerCase();
                 if (word.length() > 1) {
                     uniqueWords.add(word);
                 }

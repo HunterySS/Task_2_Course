@@ -1,8 +1,7 @@
 package com.ilya.textapp.service;
 
-import com.ilya.textapp.entity.Block;
-import com.ilya.textapp.entity.Clause;
-import com.ilya.textapp.entity.impl.CompositeComponent;
+import com.ilya.textapp.entity.impl.TextComponent;
+import com.ilya.textapp.entity.impl.TextComponentType;
 import com.ilya.textapp.exception.TextProcessingException;
 import com.ilya.textapp.service.impl.ClauseSorter;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +13,7 @@ public class ClauseSorterService implements ClauseSorter {
     private static final Logger LOGGER = LogManager.getLogger(ClauseSorterService.class);
 
     @Override
-    public List<Clause> sortClausesByLetterCount(CompositeComponent document, char letter) throws TextProcessingException {
+    public List<TextComponent> sortClausesByLetterCount(TextComponent document, char letter) throws TextProcessingException {
         LOGGER.debug("Sorting clauses by count of letter: '{}'", letter);
 
         if (document == null) {
@@ -23,57 +22,42 @@ public class ClauseSorterService implements ClauseSorter {
         }
 
         char targetLetter = Character.toLowerCase(letter);
-        List<Clause> allClauses = extractAllClauses(document);
+        List<TextComponent> allSentences = extractAllByType(document, TextComponentType.SENTENCE);
 
-        LOGGER.info("Found {} clauses to sort", allClauses.size());
+        LOGGER.info("Found {} sentences to sort", allSentences.size());
 
-        for (int i = 0; i < allClauses.size() - 1; i++) {
-            for (int j = i + 1; j < allClauses.size(); j++) {
-                int countI = countLetterInClause(allClauses.get(i), targetLetter);
-                int countJ = countLetterInClause(allClauses.get(j), targetLetter);
+        for (int i = 0; i < allSentences.size() - 1; i++) {
+            for (int j = i + 1; j < allSentences.size(); j++) {
+                int countI = countLetterInSentence(allSentences.get(i), targetLetter);
+                int countJ = countLetterInSentence(allSentences.get(j), targetLetter);
 
                 if (countI > countJ) {
-                    Clause temp = allClauses.get(i);
-                    allClauses.set(i, allClauses.get(j));
-                    allClauses.set(j, temp);
+                    TextComponent temp = allSentences.get(i);
+                    allSentences.set(i, allSentences.get(j));
+                    allSentences.set(j, temp);
                 }
             }
         }
 
-        for (int i = 0; i < allClauses.size(); i++) {
-            int count = countLetterInClause(allClauses.get(i), targetLetter);
-            String preview = allClauses.get(i).restore();
-            if (preview.length() > 50) {
-                preview = preview.substring(0, 50);
-            }
-            LOGGER.trace("Clause has {} occurrences of '{}': {}", count, letter, preview);
-        }
-
-        return allClauses;
+        return allSentences;
     }
 
-    private List<Clause> extractAllClauses(CompositeComponent component) {
-        List<Clause> result = new ArrayList<>();
+    private List<TextComponent> extractAllByType(TextComponent component, TextComponentType targetType) {
+        List<TextComponent> result = new ArrayList<>();
 
-        if (component instanceof Clause) {
-            result.add((Clause) component);
-        } else if (component instanceof Block) {
-            List<CompositeComponent> children = component.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                result.addAll(extractAllClauses(children.get(i)));
-            }
-        } else if (component.getClass().getSimpleName().equals("DocumentRoot")) {
-            List<CompositeComponent> children = component.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                result.addAll(extractAllClauses(children.get(i)));
-            }
+        if (component.getType() == targetType) {
+            result.add(component);
+        }
+
+        for (TextComponent child : component.getChildren()) {
+            result.addAll(extractAllByType(child, targetType));
         }
 
         return result;
     }
 
-    private int countLetterInClause(Clause clause, char letter) {
-        String text = clause.restore();
+    private int countLetterInSentence(TextComponent sentence, char letter) {
+        String text = sentence.restore();
         String lowerText = text.toLowerCase();
         int count = 0;
 

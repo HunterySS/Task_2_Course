@@ -1,6 +1,6 @@
 package com.ilya.textapp.parser;
 
-import com.ilya.textapp.entity.impl.CompositeComponent;
+import com.ilya.textapp.entity.impl.TextComponent;
 import com.ilya.textapp.exception.TextProcessingException;
 import com.ilya.textapp.parser.impl.TextParser;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +15,7 @@ public abstract class AbstractTextParser implements TextParser {
         this.next = next;
     }
 
-    protected CompositeComponent parseNext(String text) throws TextProcessingException {
+    protected TextComponent parseNext(String text) throws TextProcessingException {
         if (next != null) {
             return next.parse(text);
         }

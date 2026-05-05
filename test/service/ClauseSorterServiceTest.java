@@ -5,44 +5,46 @@ import com.ilya.textapp.entity.TextLeaf;
 import com.ilya.textapp.entity.impl.TextComponent;
 import com.ilya.textapp.entity.impl.TextComponentType;
 import com.ilya.textapp.exception.TextProcessingException;
-import com.ilya.textapp.service.TextAnalyzerService;
+import com.ilya.textapp.service.ClauseSorterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-class TextAnalyzerServiceTest {
+class ClauseSorterServiceTest {
 
-    private TextAnalyzerService service;
+    private ClauseSorterService service;
     private TextComponent document;
 
     @BeforeEach
     void setUp() {
-        service = new TextAnalyzerService();
+        service = new ClauseSorterService();
         document = new TextComposite(TextComponentType.DOCUMENT);
 
         TextComposite paragraph = new TextComposite(TextComponentType.PARAGRAPH);
 
         TextComposite sentence1 = new TextComposite(TextComponentType.SENTENCE);
-        sentence1.add(new TextLeaf("Hello", TextComponentType.WORD));
-        sentence1.add(new TextLeaf("world", TextComponentType.WORD));
+        sentence1.add(new TextLeaf("bee", TextComponentType.WORD));
 
         TextComposite sentence2 = new TextComposite(TextComponentType.SENTENCE);
-        sentence2.add(new TextLeaf("Hello", TextComponentType.WORD));
-        sentence2.add(new TextLeaf("again", TextComponentType.WORD));
+        sentence2.add(new TextLeaf("e", TextComponentType.WORD));
+
+        TextComposite sentence3 = new TextComposite(TextComponentType.SENTENCE);
+        sentence3.add(new TextLeaf("elephant", TextComponentType.WORD));
 
         paragraph.add(sentence1);
         paragraph.add(sentence2);
+        paragraph.add(sentence3);
         document.add(paragraph);
     }
 
     @Test
-    void testFindMaxSentencesWithSameWords() throws TextProcessingException {
-        int result = service.findMaxSentencesWithSameWords(document);
-        assertEquals(2, result);
-    }
+    void testSortClausesByLetterCount() throws TextProcessingException {
+        List<TextComponent> sorted = service.sortClausesByLetterCount(document, 'e');
 
-    @Test
-    void testNullDocumentThrowsException() {
-        assertThrows(TextProcessingException.class, () -> service.findMaxSentencesWithSameWords(null));
+        assertEquals(3, sorted.size());
+        assertEquals("e", sorted.get(0).restore());
+        assertEquals("bee", sorted.get(1).restore());
+        assertEquals("elephant", sorted.get(2).restore());
     }
 }

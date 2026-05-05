@@ -1,10 +1,8 @@
 package com.ilya.textapp.service;
 
-import com.ilya.textapp.entity.Block;
-import com.ilya.textapp.entity.Clause;
-import com.ilya.textapp.entity.Mark;
-import com.ilya.textapp.entity.Token;
-import com.ilya.textapp.entity.impl.CompositeComponent;
+import com.ilya.textapp.entity.TextComposite;
+import com.ilya.textapp.entity.impl.TextComponent;
+import com.ilya.textapp.entity.impl.TextComponentType;
 import com.ilya.textapp.exception.TextProcessingException;
 import com.ilya.textapp.service.impl.TokenSwapper;
 import org.apache.logging.log4j.LogManager;
@@ -16,8 +14,8 @@ public class TokenSwapperService implements TokenSwapper {
     private static final Logger LOGGER = LogManager.getLogger(TokenSwapperService.class);
 
     @Override
-    public CompositeComponent swapFirstAndLastToken(CompositeComponent document) throws TextProcessingException {
-        LOGGER.debug("Swapping first and last token in each clause");
+    public TextComponent swapFirstAndLastToken(TextComponent document) throws TextProcessingException {
+        LOGGER.debug("Swapping first and last token in each sentence");
 
         if (document == null) {
             LOGGER.error("Document is null");
@@ -30,43 +28,37 @@ public class TokenSwapperService implements TokenSwapper {
         return document;
     }
 
-    private void processComponent(CompositeComponent component) {
-        if (component instanceof Clause) {
-            swapTokensInClause((Clause) component);
-        } else if (component instanceof Block) {
-            List<CompositeComponent> children = component.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                processComponent(children.get(i));
-            }
-        } else if (component.getClass().getSimpleName().equals("DocumentRoot")) {
-            List<CompositeComponent> children = component.getChildren();
-            for (int i = 0; i < children.size(); i++) {
-                processComponent(children.get(i));
-            }
+    private void processComponent(TextComponent component) {
+        if (component.getType() == TextComponentType.SENTENCE) {
+            swapTokensInSentence((TextComposite) component);
+        }
+
+        for (TextComponent child : component.getChildren()) {
+            processComponent(child);
         }
     }
 
-    private void swapTokensInClause(Clause clause) {
-        List<CompositeComponent> components = clause.getChildren();
+    private void swapTokensInSentence(TextComposite sentence) {
+        List<TextComponent> components = sentence.getChildren();
 
-        int firstTokenIndex = -1;
-        int lastTokenIndex = -1;
+        int firstWordIndex = -1;
+        int lastWordIndex = -1;
 
         for (int i = 0; i < components.size(); i++) {
-            if (components.get(i) instanceof Token) {
-                if (firstTokenIndex == -1) {
-                    firstTokenIndex = i;
+            if (components.get(i).getType() == TextComponentType.WORD) {
+                if (firstWordIndex == -1) {
+                    firstWordIndex = i;
                 }
-                lastTokenIndex = i;
+                lastWordIndex = i;
             }
         }
 
-        if (firstTokenIndex != -1 && lastTokenIndex != -1 && firstTokenIndex != lastTokenIndex) {
-            CompositeComponent first = components.get(firstTokenIndex);
-            CompositeComponent last = components.get(lastTokenIndex);
+        if (firstWordIndex != -1 && lastWordIndex != -1 && firstWordIndex != lastWordIndex) {
+            TextComponent first = components.get(firstWordIndex);
+            TextComponent last = components.get(lastWordIndex);
 
-            components.set(firstTokenIndex, last);
-            components.set(lastTokenIndex, first);
+            components.set(firstWordIndex, last);
+            components.set(lastWordIndex, first);
 
             LOGGER.debug("Swapped first word '{}' with last word '{}'", first.restore(), last.restore());
         }

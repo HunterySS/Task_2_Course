@@ -1,14 +1,15 @@
 package com.ilya.textapp.parser;
 
-import com.ilya.textapp.entity.DocumentRoot;
-import com.ilya.textapp.entity.impl.CompositeComponent;
+import com.ilya.textapp.entity.TextComposite;
+import com.ilya.textapp.entity.impl.TextComponent;
+import com.ilya.textapp.entity.impl.TextComponentType;
 import com.ilya.textapp.exception.TextProcessingException;
 
 public class DocumentParser extends AbstractTextParser {
     private static final String BLOCK_DELIMITER = "\\n\\s*\\n";
 
     @Override
-    public CompositeComponent parse(String text) throws TextProcessingException {
+    public TextComponent parse(String text) throws TextProcessingException {
         LOGGER.debug("Parsing document");
 
         if (text == null || text.strip().isBlank()) {
@@ -16,18 +17,18 @@ public class DocumentParser extends AbstractTextParser {
             throw new TextProcessingException("Text cannot be null or empty");
         }
 
-        DocumentRoot root = new DocumentRoot();
+        TextComposite document = new TextComposite(TextComponentType.DOCUMENT);
         String[] blocks = text.split(BLOCK_DELIMITER);
         LOGGER.info("Found {} blocks (paragraphs)", blocks.length);
 
         for (String blockText : blocks) {
-            CompositeComponent block = parseNext(blockText.strip());
+            TextComponent block = parseNext(blockText.strip());
             if (block != null) {
-                root.add(block);
+                document.add(block);
             }
         }
 
-        LOGGER.debug("Document parsed successfully. Total blocks: {}", root.getChildren().size());
-        return root;
+        LOGGER.debug("Document parsed successfully. Total blocks: {}", document.getChildren().size());
+        return document;
     }
 }

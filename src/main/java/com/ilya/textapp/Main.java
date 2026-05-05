@@ -1,8 +1,6 @@
 package com.ilya.textapp;
 
-import com.ilya.textapp.entity.Clause;
-import com.ilya.textapp.entity.DocumentRoot;
-import com.ilya.textapp.entity.impl.CompositeComponent;
+import com.ilya.textapp.entity.impl.TextComponent;
 import com.ilya.textapp.exception.TextProcessingException;
 import com.ilya.textapp.parser.ParserChainFactory;
 import com.ilya.textapp.parser.impl.TextParser;
@@ -28,43 +26,39 @@ public class Main {
             String text = fileReader.readFile(filePath);
 
             TextParser parser = ParserChainFactory.createChain();
-            CompositeComponent document = parser.parse(text);
+            TextComponent document = parser.parse(text);
 
-            if (document instanceof DocumentRoot) {
-                DocumentRoot root = (DocumentRoot) document;
+            printSeparator();
+            System.out.println("=== TEXT STATISTICS ===");
+            System.out.println("Total letters in text: " + document.countLetters());
+            System.out.println("Total symbols in text: " + document.countSymbols());
 
-                printSeparator();
-                System.out.println("=== TEXT STATISTICS ===");
-                System.out.println("Total letters in text: " + document.countLetters());
-                System.out.println("Total symbols in text: " + document.countSymbols());
+            printSeparator();
+            System.out.println("=== OPERATION 1: MAX SENTENCES WITH SAME WORDS ===");
+            TextAnalyzerService analyzer = new TextAnalyzerService();
+            int maxSentences = analyzer.findMaxSentencesWithSameWords(document);
+            System.out.println("Result: " + maxSentences);
 
-                printSeparator();
-                System.out.println("=== OPERATION 1: MAX SENTENCES WITH SAME WORDS ===");
-                TextAnalyzerService analyzer = new TextAnalyzerService();
-                int maxSentences = analyzer.findMaxSentencesWithSameWords(document);
-                System.out.println("Result: " + maxSentences);
+            printSeparator();
+            System.out.println("=== OPERATION 2: SORT CLAUSES BY LETTER '" + TARGET_LETTER + "' ===");
+            ClauseSorterService sorter = new ClauseSorterService();
+            List<TextComponent> sortedClauses = sorter.sortClausesByLetterCount(document, TARGET_LETTER);
 
-                printSeparator();
-                System.out.println("=== OPERATION 2: SORT CLAUSES BY LETTER '" + TARGET_LETTER + "' ===");
-                ClauseSorterService sorter = new ClauseSorterService();
-                List<Clause> sortedClauses = sorter.sortClausesByLetterCount(document, TARGET_LETTER);
-
-                System.out.println("Clauses sorted by occurrences of letter '" + TARGET_LETTER + "' (ascending):");
-                for (int i = 0; i < sortedClauses.size(); i++) {
-                    System.out.println((i + 1) + ". " + sortedClauses.get(i).restore());
-                }
-
-                printSeparator();
-                System.out.println("=== OPERATION 3: SWAP FIRST AND LAST TOKEN ===");
-                System.out.println("BEFORE SWAP:");
-                System.out.println(document.restore());
-
-                TokenSwapperService swapper = new TokenSwapperService();
-                swapper.swapFirstAndLastToken(document);
-
-                System.out.println("\nAFTER SWAP:");
-                System.out.println(document.restore());
+            System.out.println("Sentences sorted by occurrences of letter '" + TARGET_LETTER + "' (ascending):");
+            for (int i = 0; i < sortedClauses.size(); i++) {
+                System.out.println((i + 1) + ". " + sortedClauses.get(i).restore());
             }
+
+            printSeparator();
+            System.out.println("=== OPERATION 3: SWAP FIRST AND LAST TOKEN ===");
+            System.out.println("BEFORE SWAP:");
+            System.out.println(document.restore());
+
+            TokenSwapperService swapper = new TokenSwapperService();
+            swapper.swapFirstAndLastToken(document);
+
+            System.out.println("\nAFTER SWAP:");
+            System.out.println(document.restore());
 
             LOGGER.info("=== Application finished successfully ===");
 
