@@ -13,7 +13,7 @@ public class TokenParser extends AbstractTextParser {
     public TextComponent parse(String text) throws TextProcessingException {
         LOGGER.trace("Parsing token: {}", text);
 
-        if (text == null || text.isEmpty()) {
+        if (text == null || text.isBlank()) {
             LOGGER.warn("Empty token received");
             return null;
         }

@@ -17,7 +17,7 @@ public class BlockParser extends AbstractTextParser {
         LOGGER.info("Found {} clauses (sentences) in block", clauses.length);
 
         for (String clauseText : clauses) {
-            TextComponent clause = parseNext(clauseText.trim());
+            TextComponent clause = parseNext(clauseText.strip());
             if (clause != null) {
                 paragraph.add(clause);
             }
