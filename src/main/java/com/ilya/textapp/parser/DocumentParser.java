@@ -12,7 +12,7 @@ public class DocumentParser extends AbstractTextParser {
     public TextComponent parse(String text) throws TextProcessingException {
         LOGGER.debug("Parsing document");
 
-        if (text == null || text.strip().isBlank()) {
+        if (text.strip().isBlank()) {
             LOGGER.error("Text is null or empty");
             throw new TextProcessingException("Text cannot be null or empty");
         }
