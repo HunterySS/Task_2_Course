@@ -35,7 +35,7 @@ public class TextLeaf implements TextComponent {
 
     @Override
     public List<TextComponent> getChildren() {
-        return Collections.emptyList();
+        throw new UnsupportedOperationException("Leaf has no children");
     }
 
     @Override
