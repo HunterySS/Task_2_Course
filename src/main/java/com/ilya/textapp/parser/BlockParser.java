@@ -6,14 +6,14 @@ import com.ilya.textapp.entity.impl.TextComponentType;
 import com.ilya.textapp.exception.TextProcessingException;
 
 public class BlockParser extends AbstractTextParser {
-    private static final String CLAUSE_DELIMITER = "(?<=[.!?])\\s+(?=[A-Z])";
+    private static final String SENTENCE_DELIMITER = "(?<=[.!?])\\s+(?=[A-Z])";
 
     @Override
     public TextComponent parse(String text) throws TextProcessingException {
         LOGGER.debug("Parsing block: {}", text.length() > 50 ? text.substring(0, 50) + "..." : text);
 
         TextComposite paragraph = new TextComposite(TextComponentType.PARAGRAPH);
-        String[] clauses = text.split(CLAUSE_DELIMITER);
+        String[] clauses = text.split(SENTENCE_DELIMITER);
         LOGGER.info("Found {} clauses (sentences) in block", clauses.length);
 
         for (String clauseText : clauses) {
