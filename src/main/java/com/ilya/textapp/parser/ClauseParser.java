@@ -8,14 +8,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ClauseParser extends AbstractTextParser {
-    private static final Pattern TOKEN_PATTERN = Pattern.compile("([a-zA-Zа-яА-ЯёЁ]+|[^a-zA-Zа-яА-ЯёЁ\\s]+)");
+    private static final Pattern TOKEN_REGEX = Pattern.compile("([a-zA-Zа-яА-ЯёЁ]+|[^a-zA-Zа-яА-ЯёЁ\\s]+)");
 
     @Override
     public TextComponent parse(String text) throws TextProcessingException {
         LOGGER.debug("Parsing clause: {}", text.length() > 50 ? text.substring(0, 50) + "..." : text);
 
         TextComposite sentence = new TextComposite(TextComponentType.SENTENCE);
-        Matcher matcher = TOKEN_PATTERN.matcher(text);
+        Matcher matcher = TOKEN_REGEX.matcher(text);
 
         int tokenCount = 0;
         while (matcher.find()) {
